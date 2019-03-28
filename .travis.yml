@@ -1,0 +1,22 @@
+language: minimal
+group: travis_latest
+os: linux
+
+services:
+  - docker
+
+notifications:
+  email: false
+
+git:
+  depth: 1
+
+cache:
+  apt: true
+
+branches:
+  except:
+    - travis-artifacts
+
+script:
+  - docker run --env-file <( env| cut -f1 -d= ) -v$(pwd):/home/user "o1labs/snarky" bash -c "make"
