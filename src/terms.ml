@@ -50,3 +50,23 @@ let rec substitute tt xx = function
         Abs (z, s |> substitute (Var z) y |> substitute tt xx)
         (* λz.(s[z/y][t/x]) *)
   | App (s, t) -> App (substitute tt xx s, substitute tt xx t)
+
+(* 2.3.4 *)
+(* λx. s -> λy. s[y/x], y not in FV(s) *)
+let alpha_conv = function
+  | Abs (x, s) ->
+      let y = free_vars s |> fresh_var in
+      Abs (y, substitute (Var y) x s)
+  | t -> t
+
+(* (λx. s) t -> s[t/x] *)
+let beta_conv = function
+  | App (Abs (x, s), t) -> substitute t x s
+  | t -> t
+
+(* λx.t x -> t, if x not in FV(t) *)
+let eta_conv = function
+  | Abs (x, App (t1, t2)) ->
+      if VarSet.mem x (free_vars t1) then Abs (x, App (t1, t2)) else t1
+  | t -> t
+

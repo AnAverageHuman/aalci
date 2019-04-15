@@ -26,3 +26,9 @@ val bound_vars : term -> VarSet.t
 
 val substitute : term -> string -> term -> term
 (** [substitute tt xx] replaces all instances of xx with tt in a given term. *)
+
+val alpha_conv : term -> term
+
+val beta_conv : term -> term
+
+val eta_conv : term -> term
