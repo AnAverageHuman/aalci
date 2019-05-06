@@ -1,0 +1,6 @@
+(library
+ (name aalci_test)
+ (preprocess
+  (pps ppx_inline_test))
+ (libraries aalci)
+ (inline_tests))

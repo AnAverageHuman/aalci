@@ -5,7 +5,7 @@ DUNE ?= dune
 all:
 	$(DUNE) build
 
-test:
+runtest:
 	$(DUNE) runtest
 
 toplevel:

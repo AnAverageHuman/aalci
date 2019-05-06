@@ -18,6 +18,8 @@ module VarSet : sig
   val empty : t
 
   val add : elt -> t -> t
+
+  val equal : t -> t -> bool (* only used in tests *)
 end
 
 val free_vars : term -> VarSet.t
