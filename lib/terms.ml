@@ -72,3 +72,13 @@ let eta_conv = function
       if VarSet.mem x (free_vars t1) then Abs (x, App (t1, t2)) else t1
   | t -> t
 
+(* 2.3.8 *)
+(* (λx.s) t *)
+let rec normalize_step = function
+  | App (Abs (x, s), t) -> beta_conv (App (Abs (x, s), t))
+  | App (s, t) ->
+      (* if left can't be reduced, try right *)
+      let s' = normalize_step s in
+      if s = s' then App (s, normalize_step t) else App (s', t)
+  | Abs (x, s) -> Abs (x, normalize_step s)
+  | t -> t

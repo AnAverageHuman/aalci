@@ -34,3 +34,7 @@ val alpha_conv : term -> term
 val beta_conv : term -> term
 
 val eta_conv : term -> term
+
+val normalize_step : term -> term
+(** [normalize term] reduces "the redex whose λ is furthest to the left" to
+    ensure termination *)
