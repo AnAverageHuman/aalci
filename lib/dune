@@ -1,2 +1,5 @@
 (library
  (name aalci))
+
+(menhir
+ (modules parser))
