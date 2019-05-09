@@ -82,3 +82,8 @@ let rec normalize_step = function
       if s = s' then App (s, normalize_step t) else App (s', t)
   | Abs (x, s) -> Abs (x, normalize_step s)
   | t -> t
+
+let rec normalize t =
+  let t' = normalize_step t in
+  print_term t ;
+  if t = t' then t else normalize t'
