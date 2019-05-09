@@ -3,13 +3,14 @@
 %token DEFINE
 %token EOF
 
-%start <Procedure.procedure> procedure
+%start <Program.procedure> procedure
 %%
 
 procedure:
   | VAR; DEFINE; t = term; SEMICO { Def($1, t) }
   | t = term; SEMICO { Use t }
-  | EOF | SEMICO { Noop }
+  | SEMICO { Noop }
+  | EOF { Eof }
 
 term:
   | var = atom { var }
