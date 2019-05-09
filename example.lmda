@@ -1,0 +1,15 @@
+TRUE := λx.λy.x ;
+FALSE := λx.λy.y ;
+AND := λp.λq.p q p ;
+OR := λp.λq.p p q ;
+NOT := λp.p FALSE TRUE ;
+IFTHENELSE := λp.λa.λb.p a b ;
+ISZERO := λn.n (λx.FALSE) TRUE ;
+LEQ := λm.λn.ISZERO (SUB m n) ;
+PAIR := λx.λy.λf.f x y ;
+FIRST := λp.p TRUE ;
+SECOND := λp.p FALSE ;
+NIL := λx.TRUE  ;
+NULL := λp.p (λx.λy.FALSE) ;
+
+OR TRUE FALSE;
