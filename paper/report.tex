@@ -1,0 +1,71 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[backend=biber]{biblatex}
+\usepackage[margin=1.00in]{geometry}
+\usepackage{minted}
+\usepackage{csquotes}
+
+\addbibresource{references.bib}
+
+\title{Lambda Calculus as a Programming Language}
+\author{Jeffrey Lin}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+The Lambda Calculus was invented by the mathematician Alonzo Church in the 1930s around the same time Alan Turing came up with the idea of the Turing Machine.
+It was later proved that the Lambda Calculus and the Turing Machine are equivalent: whatever computation one can represent, the other can as well.
+While the Turing Machine is the basis for imperative languages and their constructs today, the Lambda Calculus is the basis of functional programming.
+
+Note that for the purposes of our model, we define the Lambda Calculus using \citeauthor{Harrison_1997}'s \citetitle{Harrison_1997}.
+
+\section{Defining and Manipulating Terms}
+
+There are three categories of terms in the Lambda Calculus: variables, applications, and abstractions.
+In OCaml, we can therefore represent the type term as:
+\begin{minted}{ocaml}
+type term = Var of string | Abs of string * term | App of term * term
+\end{minted}
+Using this type, we will model computation as a tree, which can be easily traversed and manipulated with recursive pattern matching functions.
+
+\subsection{Printing}
+
+To pretty-print terms, we will want to use as few parentheses as possible.
+An initial design for the term printer \mintinline{ocaml}{string_of_term} always used parentheses around both terms in applications \mintinline{ocaml}{App(s, t)}.
+However, this resulted in nested applications producing too many parentheses, which made many complex terms look ugly.
+In the latest version, we use a mutually recursive set of functions \mintinline{ocaml}{string_of_term} and \mintinline{ocaml}{string_of_exp} which will only output a pair of parentheses when the term inside is not a simple variable.
+
+\subsection{Free and Bound Variables}
+
+As the definition of free and bound variables is given in terms of mathematical sets, we construct a module set \mintinline{ocaml}{VarSet} of \mintinline{ocaml}{String}s that will allow us to perform these set operations.
+Free variables are those that are excluded from the scope of an abstraction, whereas bound variables are those that are included in the scope of an abstraction.
+While this isn't immediately useful, we will need to know what the free variables of a given term are when we model substitution.
+
+\subsection{Substitution}
+
+It is interesting to note that abstractions and applications are actually the inverses of each another.
+We write the \mintinline{ocaml}{substitute} function based on a few basic rules:
+\begin{itemize}
+  \item To perform substitution on variables, replace the \enquote{old} term with the \enquote{new} term.
+  \item We can perform substitution on applications by \enquote{propagating} the substitution inwards to both subterms.
+  \item Substitution on an abstraction is a bit trickier.
+    We must be careful to not accidentally bind or free any variables.
+    Given a term \mintinline[escapeinside=||]{ocaml}{|$\lambda$| x.s}, we can safely perform substitution if the term being replaced is not a free variable in $s$, or $x$ is not a free variable in the replacing term.
+    Otherwise, we have to rename $x$ to a variable that is not free in either $s$ or the replacing term, after which we can proceed as normal.
+\end{itemize}
+To help us to choose a \enquote{safe} variable, we perform the proper operations and pass the \mintinline{ocaml}{VarSet} of free variables to \mintinline{ocaml}{fresh_var}, which returns a variable that we can rename $x$ to.
+
+\subsection{Conversions}
+
+There are three types of conversions: alpha ($\alpha$), beta ($\beta$), and ($\eta$).
+We actually do an implicit alpha conversion in the last case for substitutions, when we rename $x$ before proceeding with the substitution.
+The most important of these is the beta conversion, in which we can take an application of the form \mintinline[escapeinside=||]{ocaml}{(|$\lambda$| x.s) t} and substitute $t$ for $x$ in $s$.
+Eta conversion is interesting for logical analysis as it can assist us with potentially reducing even further, but isn't as useful as the beta reduction for simulating programs.
+
+\subsection{Normalization of Terms}
+
+It can be proved that if we continuously process the expression by reducing the \enquote{leftmost outermost} term of the form \mintinline[escapeinside=||]{ocaml}{(|$\lambda$| x.s) t}, we will eventually end up with an expression that can no longer be reduced, i.e.\ the expression will be in normal form.
+Given a term as input, \mintinline{ocaml}{normalize_step} returns the term that is the result of one step of reduction.
+To fully reduce, \mintinline{ocaml}{normalize} runs \mintinline{ocaml}{normalize_step} until the output is the same as the input, with the assumption being that no more reductions are possible after that point.
+
+\end{document}
