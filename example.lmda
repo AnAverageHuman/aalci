@@ -12,4 +12,5 @@ SECOND := λp.p FALSE ;
 NIL := λx.TRUE  ;
 NULL := λp.p (λx.λy.FALSE) ;
 
-OR TRUE FALSE;
+TRUE2 := OR TRUE FALSE;
+TRUE2 ;

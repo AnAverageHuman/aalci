@@ -31,11 +31,12 @@ let read_program =
   in
   parse_step Program.EnvMap.empty []
 
+let rec substitute_env env t =
+  let t' = Program.EnvMap.fold Terms.substitute env t in
+  if t = t' then t else substitute_env env t'
+
 let process_line env term =
-  let open Terms in
-  term |> normalize
-  |> Program.EnvMap.fold substitute env
-  |> normalize |> print_term
+  Terms.(term |> normalize |> substitute_env env |> normalize |> print_term)
 
 let rec execute Program.{env; routine} =
   match routine with
