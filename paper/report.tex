@@ -68,4 +68,34 @@ It can be proved that if we continuously process the expression by reducing the 
 Given a term as input, \mintinline{ocaml}{normalize_step} returns the term that is the result of one step of reduction.
 To fully reduce, \mintinline{ocaml}{normalize} runs \mintinline{ocaml}{normalize_step} until the output is the same as the input, with the assumption being that no more reductions are possible after that point.
 
+\section{Executing Programs}
+
+We can now write and reduce arbitrary terms, but that is not very entertaining or useful to the typical end user.
+While the Lambda Calculus can model any computation, it does not do so in a manner that is easy to read.
+
+\subsection{Defining Procedures}
+To make terms slightly easier to work with, we define a simple \mintinline{ocaml}{procedure} type that allows us to alias terms to human-readable identifiers:
+\begin{minted}{ocaml}
+type procedure = Def of string * Terms.term | Use of Terms.term | Noop | Eof
+\end{minted}
+A \mintinline{ocaml}{procedure} corresponds to a single statement in our language.
+We can use a \mintinline{ocaml}{Def} to associate an identifier with the term it represents, and a \mintinline{ocaml}{Use} to perform operations (the most computationally useful one being reduction/normalization).
+\mintinline{ocaml}{Noop} and \mintinline{ocaml}{Eof} are more for the implementation, as some statements, such as comments, may not be of value to our interpreter.
+
+\subsection{Defining Programs}
+Now that the concept of procedures is well-defined, we can combine sequences of them to create larger programs.
+We split the definition of a program into two parts: its environment and routines:
+
+\begin{minted}{ocaml}
+module EnvMap = Map.Make (struct
+  type t = Terms.term
+  let compare = compare
+end)
+
+type program = { env: string EnvMap.t ; routine: Terms.term list }
+\end{minted}
+The environment \mintinline{ocaml}{env} will store \mintinline{ocaml}{Def}s and allow us to look up terms by their identifiers.
+We use a list of \mintinline{ocaml}{term}s to represent the terms that we actually want to see the normalization of.
+In reality, this list could be rather short in comparison to the size of the environment.
+
 \end{document}
