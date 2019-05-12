@@ -13,16 +13,14 @@ procedure:
   | EOF { Eof }
 
 term:
-  | var = atom { var }
-  | abs = abs { abs }
-  | app = app { app }
+  | t = atom { t }
+  | atom; nonempty_list(atom) {
+    match $2 with
+      | h :: t -> List.fold_left (fun acc t -> Terms.App(acc, t)) (App($1, h)) t
+      | _ -> failwith "how did we get here?"
+    }
 
 atom:
   | VAR { Var $1 }
   | LPAREN; t = term; RPAREN { t }
-
-app:
-  | s = term; t = term { App(s, t) }
-
-abs:
-  | LAMBDA; x = VAR; DOT; s = term { Abs(x, s) }
+  | LAMBDA; v = VAR; DOT; t = term { Terms.Abs(v, t) }
